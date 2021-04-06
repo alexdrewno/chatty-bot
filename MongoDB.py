@@ -7,12 +7,36 @@ from datetime import datetime
 #load_dotenv()
 
 class MongoDB: 
+    """
+    Creates an instance of the MongoDB database
+
+    Attributes
+    __________
+    db: (MongoDB obj)
+        The collection where we are storing our data in the MongoDB database
+
+    Functions
+    __________
+    addMessageToDb(message)
+        Add a new message to the database
+    addReactToMessageInDb(reaction)
+        Add a new reaction to an existing message in the database
+    """
 
     def __init__ (self):
         self.client = MongoClient(os.getenv('MONGO_URI'))
         self.db = self.client.ChatLogs
     
     def addMessageToDb(self, message):
+        """
+        Add a new message to the database
+
+        Parameters
+        ----------
+        message : discord.Message
+            The message object that we want to get info from and add to our database
+        """
+
         messageDict = {
             "_id": message.id,
             "date": datetime.utcnow().isoformat(),
@@ -27,6 +51,15 @@ class MongoDB:
         self.db.logs.insert_one(messageDict)
 
     def addReactToMessageInDb(self, reaction):
+        """
+        Add a new reaction to an existing message in the database
+
+        Parameters
+        ----------
+        reaction : discord.reaction
+            The reaction object that we want to get info from and add to a message in our database
+        """
+
         messageDict = self.db.logs.find_one({"_id": reaction.message.id})
 
         if reaction.custom_emoji:
